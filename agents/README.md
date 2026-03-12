@@ -42,7 +42,14 @@ export AZURE_OPENAI_ENDPOINT="https://<resource>.openai.azure.com/"
 export AZURE_OPENAI_API_KEY="<key>"          # omit to use managed identity
 export AZURE_OPENAI_DEPLOYMENT="gpt-4o"      # optional, default: gpt-4o
 
-# 2b. OpenAI (if not using Azure)
+# 2b. AWS Bedrock (if not using Azure)
+export BEDROCK_CHAT_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v2:0"
+export AWS_DEFAULT_REGION="us-east-1"
+# Credentials via env vars (or use instance profile / IAM role / ~/.aws/credentials)
+export AWS_ACCESS_KEY_ID="<key-id>"
+export AWS_SECRET_ACCESS_KEY="<secret>"
+
+# 2c. OpenAI (if not using Azure or Bedrock)
 export OPENAI_API_KEY="<key>"
 export OPENAI_MODEL="gpt-4o-mini"            # optional, default: gpt-4o-mini
 
@@ -81,4 +88,4 @@ Goodbye! 🐾
 | `@kernel_function` | `DogShelterPlugin` methods — each one becomes a tool the model can call |
 | `ChatCompletionAgent` | Wraps the kernel + instructions; drives the conversation |
 | `ChatHistoryAgentThread` | Persists the conversation across turns |
-| Azure OpenAI / OpenAI | Swappable via environment variables, no code change needed |
+| Azure OpenAI / OpenAI / Bedrock | Swappable via environment variables, no code change needed |

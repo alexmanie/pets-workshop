@@ -1,21 +1,28 @@
 """
 Minimal Semantic Kernel Agents example for the Tailspin Shelter.
 
-This agent uses a ChatCompletionAgent backed by Azure OpenAI or OpenAI to answer
-questions about dogs in the shelter.  It exposes the shelter's REST API as
-kernel functions so the model can call them as tools.
+This agent uses a ChatCompletionAgent backed by Azure OpenAI, OpenAI, or AWS
+Bedrock to answer questions about dogs in the shelter.  It exposes the shelter's
+REST API as kernel functions so the model can call them as tools.
 
 Prerequisites:
     pip install -r requirements.txt
 
-Environment variables (at least one provider must be configured):
+Environment variables — configure exactly ONE provider:
 
-    Azure OpenAI:
+    Azure OpenAI (checked first):
         AZURE_OPENAI_ENDPOINT   – e.g. https://<resource>.openai.azure.com/
         AZURE_OPENAI_API_KEY    – your API key  (omit to use managed identity)
         AZURE_OPENAI_DEPLOYMENT – deployment / model name  (default: gpt-4o)
 
-    OpenAI:
+    AWS Bedrock (checked second):
+        BEDROCK_CHAT_MODEL_ID   – e.g. anthropic.claude-3-5-sonnet-20241022-v2:0
+        AWS_DEFAULT_REGION      – AWS region  (e.g. us-east-1)
+        AWS_ACCESS_KEY_ID       – } standard AWS credential chain;
+        AWS_SECRET_ACCESS_KEY   – } omit to use instance profile / IAM role
+        AWS_SESSION_TOKEN       – } (optional, for temporary credentials)
+
+    OpenAI (fallback):
         OPENAI_API_KEY          – your API key
         OPENAI_MODEL            – model name  (default: gpt-4o-mini)
 
@@ -79,11 +86,24 @@ def _build_kernel() -> Kernel:
                 api_key=os.environ.get("AZURE_OPENAI_API_KEY"),  # None → managed identity
             )
         )
+    elif bedrock_model_id := os.environ.get("BEDROCK_CHAT_MODEL_ID"):
+        from semantic_kernel.connectors.ai.bedrock import BedrockChatCompletion  # noqa: PLC0415
+
+        kernel.add_service(
+            BedrockChatCompletion(
+                model_id=bedrock_model_id,
+            )
+        )
     else:
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise EnvironmentError(
-                "Set AZURE_OPENAI_ENDPOINT (Azure OpenAI) or OPENAI_API_KEY (OpenAI)."
+                "Configure one provider:\n"
+                "  Azure OpenAI  → set AZURE_OPENAI_ENDPOINT\n"
+                "  AWS Bedrock   → set BEDROCK_CHAT_MODEL_ID (region and credentials\n"
+                "                  are resolved via the standard boto3 credential chain:\n"
+                "                  AWS_DEFAULT_REGION, ~/.aws/config, instance profile, etc.)\n"
+                "  OpenAI        → set OPENAI_API_KEY"
             )
         kernel.add_service(
             OpenAIChatCompletion(

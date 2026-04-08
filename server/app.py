@@ -35,6 +35,33 @@ def get_dogs() -> Response:
     
     return jsonify(dogs_list)
 
+@app.route('/api/dogs/color/<string:color>', methods=['GET'])
+def get_dogs_by_color(color: str) -> Response:
+    """Return all dogs matching the specified color (case-insensitive)."""
+    query = db.session.query(
+        Dog.id,
+        Dog.name,
+        Breed.name.label('breed'),
+        Dog.color
+    ).join(Breed, Dog.breed_id == Breed.id).filter(
+        Dog.color.isnot(None),
+        db.func.lower(Dog.color) == color.lower()
+    )
+
+    dogs_query = query.all()
+
+    dogs_list: List[Dict[str, Any]] = [
+        {
+            'id': dog.id,
+            'name': dog.name,
+            'breed': dog.breed,
+            'color': dog.color
+        }
+        for dog in dogs_query
+    ]
+
+    return jsonify(dogs_list)
+
 @app.route('/api/dogs/<int:id>', methods=['GET'])
 def get_dog(id: int) -> tuple[Response, int] | Response:
     # Query the specific dog by ID and join with breed to get breed name

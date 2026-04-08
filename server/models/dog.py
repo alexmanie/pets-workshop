@@ -18,6 +18,7 @@ class Dog(BaseModel):
     breed_id = db.Column(db.Integer, db.ForeignKey('breeds.id'))
     age = db.Column(db.Integer)
     gender = db.Column(db.String(10))
+    color = db.Column(db.String(50), nullable=True)
     description = db.Column(db.Text)
     
     # Adoption status
@@ -51,6 +52,7 @@ class Dog(BaseModel):
             'breed': self.breed.name if self.breed else None,
             'age': self.age,
             'gender': self.gender,
+            'color': self.color,
             'description': self.description,
             'status': self.status.name if self.status else 'UNKNOWN'
         }

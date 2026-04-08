@@ -95,6 +95,7 @@ def create_dogs():
                 breed_id=breed_id,
                 age=int(dog_info['Age']),
                 gender=dog_info['Gender'],
+                color=dog_info.get('Color'),
                 status=random.choice(list(AdoptionStatus)),
                 intake_date=datetime.now() - timedelta(days=random.randint(1, 365))
             )
